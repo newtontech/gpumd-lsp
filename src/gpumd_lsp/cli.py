@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 from .analyzer import analyze_path, format_text
@@ -14,9 +13,9 @@ def lsp_main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if not args.stdio:
         parser.error("only --stdio is currently supported")
-    print(
-        f"{'gpumd-lsp'} scaffold: full JSON-RPC LSP is tracked in roadmap issues", file=sys.stderr
-    )
+    from .server import SERVER
+
+    SERVER.start_io()
     return 0
 
 

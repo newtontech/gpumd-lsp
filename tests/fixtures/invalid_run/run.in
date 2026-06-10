@@ -1,0 +1,6 @@
+! Invalid run.in - potential not first, unknown keyword, compute after run
+time_step 1
+ensemble nve
+run 100
+compute_hac 10 100 10
+unknown_cmd 42

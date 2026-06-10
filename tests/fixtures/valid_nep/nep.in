@@ -1,0 +1,13 @@
+# NEP training input for C-H system
+type 2 C H
+cutoff 5 4
+n_max 6 6
+l_max 4 4
+batch_size 100
+population_size 50
+generation 100000
+lambda_e 0.1
+lambda_f 0.1
+lambda_v 0.1
+train_file train.xyz
+test_file test.xyz
