@@ -1,0 +1,6 @@
+! Invalid nep.in - unknown keywords
+type 1 Au
+cutoff 5 4
+fake_param 10
+n_max 6 6
+bogus_setting on

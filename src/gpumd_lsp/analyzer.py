@@ -15,6 +15,7 @@ FILE_PATTERNS: list[str] = ["run.in", "nep.in"]
 FILE_NAMES: list[str] = ["run.in", "nep.in"]
 FILE_SUFFIXES: list[str] = []
 KNOWN_TOKENS: list[str] = [
+    # run.in commands
     "potential",
     "velocity",
     "time_step",
@@ -22,21 +23,46 @@ KNOWN_TOKENS: list[str] = [
     "dump_thermo",
     "dump_position",
     "dump_velocity",
+    "dump_force",
+    "dump_exyz",
     "compute_hac",
     "compute_hnemd",
     "compute_msd",
     "compute_shc",
     "compute_dos",
     "compute_phonon",
+    "compute_sdc",
+    "compute_gkma",
+    "compute_heat",
+    "fix",
+    "deform",
+    "change_box",
+    "replicate",
     "run",
+    "minimize",
+    "neighbor",
+    "group",
+    "space",
+    "plumed",
+    "dftd3",
+    # nep.in keywords
     "type",
     "version",
     "cutoff",
     "n_max",
+    "l_max",
     "basis_size",
     "lambda_e",
     "lambda_f",
     "lambda_v",
+    "batch_size",
+    "population_size",
+    "generation",
+    "train_file",
+    "test_file",
+    "zbl",
+    "weight",
+    "prediction_csv",
 ]
 REQUIRED_TOKENS: list[str] = ["potential"]
 REQUIRED_IMPORTS: list[str] = []
@@ -92,6 +118,15 @@ def analyze_file(path: Path) -> list[Diagnostic]:
         return [
             Diagnostic(f"{CODE_PREFIX}202", "error", "file is not valid UTF-8 text", str(path), 1)
         ]
+    return analyze_text(path, content)
+
+
+def analyze_text(path: Path, content: str) -> list[Diagnostic]:
+    """Analyze GPUMD input content without reading from disk.
+
+    Takes a simulated file path (for name-based decisions like run.in vs nep.in)
+    and the file content as a string. Returns diagnostics.
+    """
     if DOMAIN_KIND == "python":
         return _analyze_python(path, content)
     if DOMAIN_KIND == "json":
