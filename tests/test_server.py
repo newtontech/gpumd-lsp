@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -14,7 +15,6 @@ from lsprotocol.types import (
     DocumentFormattingParams,
     HoverParams,
     Position,
-    TextDocumentContentChangeEvent_Type2,
     TextDocumentIdentifier,
     TextDocumentItem,
     VersionedTextDocumentIdentifier,
@@ -155,7 +155,7 @@ class TestDidChange:
         mock_ls = MagicMock()
         params = DidChangeTextDocumentParams(
             text_document=VersionedTextDocumentIdentifier(uri="file:///fake/run.in", version=2),
-            content_changes=[TextDocumentContentChangeEvent_Type2(text="time_step 1\n")],
+            content_changes=[SimpleNamespace(text="time_step 1\n")],
         )
         did_change(mock_ls, params)
         assert mock_ls.publish_diagnostics.called
@@ -167,7 +167,7 @@ class TestDidChange:
         mock_ls = MagicMock()
         bad_params = DidChangeTextDocumentParams(
             text_document=VersionedTextDocumentIdentifier(uri="file:///fake/run.in", version=1),
-            content_changes=[TextDocumentContentChangeEvent_Type2(text="time_step 1\n")],
+            content_changes=[SimpleNamespace(text="time_step 1\n")],
         )
         did_change(mock_ls, bad_params)
         args, _ = mock_ls.publish_diagnostics.call_args
@@ -177,11 +177,7 @@ class TestDidChange:
         mock_ls.reset_mock()
         good_params = DidChangeTextDocumentParams(
             text_document=VersionedTextDocumentIdentifier(uri="file:///fake/run.in", version=2),
-            content_changes=[
-                TextDocumentContentChangeEvent_Type2(
-                    text="potential nep.txt\ntime_step 1\nrun 100\n"
-                )
-            ],
+            content_changes=[SimpleNamespace(text="potential nep.txt\ntime_step 1\nrun 100\n")],
         )
         did_change(mock_ls, good_params)
         args, _ = mock_ls.publish_diagnostics.call_args
