@@ -46,6 +46,7 @@ gpumd-lsp = "gpumd_lsp.cli:lsp_main"
 gpumd-lint = "gpumd_lsp.cli:lint_main"
 gpumd-fmt = "gpumd_lsp.cli:fmt_main"
 gpumd-test = "gpumd_lsp.cli:test_main"
+gpumd-lsp-tool = "gpumd_lsp.tool:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gpumd_lsp"]
@@ -64,3 +65,4 @@ select = ["E", "F", "I", "B", "UP"]
 [tool.mypy]
 python_version = "3.10"
 strict = true
+
