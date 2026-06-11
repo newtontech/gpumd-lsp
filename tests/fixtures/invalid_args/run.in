@@ -1,0 +1,5 @@
+potential nep.txt
+time_step abc
+run
+ensemble nve 300
+replicate 2 2

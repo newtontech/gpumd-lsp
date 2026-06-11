@@ -1,0 +1,4 @@
+potential nep.txt
+time_step 1
+ensemble nvt_invalid 300 300 100
+run 100

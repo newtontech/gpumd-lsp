@@ -1,0 +1,4 @@
+potential nep.txt
+time_step 1
+ensemble nve
+run 100
