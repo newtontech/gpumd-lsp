@@ -59,3 +59,35 @@ class AgentLSP:
         payload = agent_check_payload(software=SOFTWARE, uri=self.uri, operation="symbols")
         payload["items"] = []
         return payload
+
+    def suggest(self, line: int = 1) -> dict[str, Any]:
+        """Issue #11: Agent JSON suggest operation."""
+        from .agent_api import agent_suggest
+
+        parsed = urlparse(self.uri)
+        path = Path(parsed.path) if parsed.path else Path("input")
+        if self.text is None and parsed.scheme == "file":
+            try:
+                content = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                content = ""
+        else:
+            content = self.text or ""
+
+        return agent_suggest(path, content, line)
+
+    def code_actions(self, line: int = 1, character: int = 0) -> list[dict[str, Any]]:
+        """Issue #21: Get code actions for a position."""
+        from .agent_api import get_code_actions
+
+        parsed = urlparse(self.uri)
+        path = Path(parsed.path) if parsed.path else Path("input")
+        if self.text is None and parsed.scheme == "file":
+            try:
+                content = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                content = ""
+        else:
+            content = self.text or ""
+
+        return get_code_actions(path, content, line, character)

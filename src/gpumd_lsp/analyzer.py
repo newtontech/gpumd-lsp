@@ -6,6 +6,15 @@ import re
 from pathlib import Path
 
 from .diagnostics import Diagnostic
+from .lint import (
+    COMMAND_SIGNATURES,
+    MATMASTER_GUARDS,
+    NEP_SIGNATURES,
+    KNOWN_THERMOSTATS,
+    lint_run_in_line,
+    lint_nep_in_line,
+    parse_runtime_log_file,
+)
 
 DOMAIN_NAME = "GPUMD"
 DOMAIN_ID = "gpumd"
@@ -14,62 +23,16 @@ CODE_PREFIX = "GPUMD"
 FILE_PATTERNS: list[str] = ["run.in", "nep.in"]
 FILE_NAMES: list[str] = ["run.in", "nep.in"]
 FILE_SUFFIXES: list[str] = []
-KNOWN_TOKENS: list[str] = [
-    # run.in commands
-    "potential",
-    "velocity",
-    "time_step",
-    "ensemble",
-    "dump_thermo",
-    "dump_position",
-    "dump_velocity",
-    "dump_force",
-    "dump_exyz",
-    "compute_hac",
-    "compute_hnemd",
-    "compute_msd",
-    "compute_shc",
-    "compute_dos",
-    "compute_phonon",
-    "compute_sdc",
-    "compute_gkma",
-    "compute_heat",
-    "fix",
-    "deform",
-    "change_box",
-    "replicate",
-    "run",
-    "minimize",
-    "neighbor",
-    "group",
-    "space",
-    "plumed",
-    "dftd3",
-    # nep.in keywords
-    "type",
-    "version",
-    "cutoff",
-    "n_max",
-    "l_max",
-    "basis_size",
-    "lambda_e",
-    "lambda_f",
-    "lambda_v",
-    "batch_size",
-    "population_size",
-    "generation",
-    "train_file",
-    "test_file",
-    "zbl",
-    "weight",
-    "prediction_csv",
-]
+KNOWN_TOKENS: list[str] = sorted(set(list(COMMAND_SIGNATURES.keys()) + list(NEP_SIGNATURES.keys())))
 REQUIRED_TOKENS: list[str] = ["potential"]
 REQUIRED_IMPORTS: list[str] = []
 REQUIRED_SYMBOLS: list[str] = []
 REQUIRED_JSON_KEYS: list[str] = []
 
 COMMENT_PREFIXES = ("#", "!", ";")
+
+# Additional files to scan for diagnostics
+RUNTIME_LOG_PATTERNS: list[str] = ["run.out", "runtime.log", "gpumd.out"]
 
 
 def analyze_path(path: Path) -> list[Diagnostic]:
@@ -89,6 +52,9 @@ def analyze_path(path: Path) -> list[Diagnostic]:
         return diagnostics
     for file_path in files:
         diagnostics.extend(analyze_file(file_path))
+    # Also scan runtime log files for errors (issue #22)
+    log_diagnostics = _scan_runtime_logs(path)
+    diagnostics.extend(log_diagnostics)
     return sorted(diagnostics, key=lambda item: (item.file, item.line, item.code))
 
 
@@ -111,6 +77,17 @@ def _is_supported(path: Path) -> bool:
     )
 
 
+def _scan_runtime_logs(path: Path) -> list[Diagnostic]:
+    """Scan for runtime log files and parse them for errors."""
+    diagnostics: list[Diagnostic] = []
+    if not path.is_dir():
+        return diagnostics
+    for pattern in RUNTIME_LOG_PATTERNS:
+        for log_file in path.rglob(pattern):
+            diagnostics.extend(parse_runtime_log_file(log_file))
+    return diagnostics
+
+
 def analyze_file(path: Path) -> list[Diagnostic]:
     try:
         content = path.read_text(encoding="utf-8")
@@ -118,7 +95,8 @@ def analyze_file(path: Path) -> list[Diagnostic]:
         return [
             Diagnostic(f"{CODE_PREFIX}202", "error", "file is not valid UTF-8 text", str(path), 1)
         ]
-    return analyze_text(path, content)
+    # When analyzing a real file, pass base_dir for file-existence checks
+    return _analyze_text_internal(path, content, base_dir=path.parent)
 
 
 def analyze_text(path: Path, content: str) -> list[Diagnostic]:
@@ -126,18 +104,24 @@ def analyze_text(path: Path, content: str) -> list[Diagnostic]:
 
     Takes a simulated file path (for name-based decisions like run.in vs nep.in)
     and the file content as a string. Returns diagnostics.
+    File-existence checks (E063, E064) are NOT performed since the path is simulated.
     """
     if DOMAIN_KIND == "python":
         return _analyze_python(path, content)
     if DOMAIN_KIND == "json":
         return _analyze_json_or_text(path, content)
-    return _analyze_text(path, content)
+    return _analyze_text_internal(path, content, base_dir=None)
 
 
-def _analyze_text(path: Path, content: str) -> list[Diagnostic]:
+def _analyze_text_internal(
+    path: Path, content: str, base_dir: Path | None = None,
+) -> list[Diagnostic]:
+    """Core text analysis. base_dir controls file-existence checks."""
     diagnostics: list[Diagnostic] = []
     meaningful = _meaningful_lines(content)
     present = {line.split()[0].lower() for _, line in meaningful if line.split()}
+
+    # Required token checks
     for required in REQUIRED_TOKENS:
         if required.lower() not in present and required.lower() not in content.lower():
             diagnostics.append(
@@ -152,6 +136,8 @@ def _analyze_text(path: Path, content: str) -> list[Diagnostic]:
                     confidence=0.72,
                 )
             )
+
+    # Unknown keyword detection (legacy GPUMD001, kept for backwards compat)
     for line_no, line in meaningful:
         token = line.split()[0].lower()
         if KNOWN_TOKENS and token not in KNOWN_TOKENS and not token.startswith(("#", "&", "%")):
@@ -166,7 +152,30 @@ def _analyze_text(path: Path, content: str) -> list[Diagnostic]:
                     confidence=0.55,
                 )
             )
+
     diagnostics.extend(_domain_text_checks(path, content, meaningful))
+
+    # New lint rules (issues #14-#18)
+    lower_name = path.name.lower()
+    for line_no, line in meaningful:
+        if lower_name == "run.in":
+            lint_diags = lint_run_in_line(path, line_no, line, base_dir)
+        elif lower_name == "nep.in":
+            lint_diags = lint_nep_in_line(path, line_no, line, base_dir)
+        else:
+            lint_diags = lint_run_in_line(path, line_no, line, base_dir)
+        # Only add new-rule diagnostics, avoiding duplicates with legacy codes
+        for d in lint_diags:
+            if d.code == "GPUMD-E060":
+                # Skip if we already have GPUMD001 for same line
+                existing = [
+                    ex for ex in diagnostics
+                    if ex.code == "GPUMD001" and ex.line == line_no
+                ]
+                if existing:
+                    continue
+            diagnostics.append(d)
+
     return diagnostics
 
 
@@ -211,25 +220,62 @@ def _domain_text_checks(
                     confidence=0.8,
                 )
             )
-    if DOMAIN_ID == "abinit":
-        has_structure = any(
-            token in content.lower() for token in ("natom", "xred", "xcart", "znucl", "typat")
-        )
-        if not has_structure:
+
+        # MatMaster execution rules (issue #8)
+        if not run_lines:
             diagnostics.append(
                 Diagnostic(
-                    "ABINIT010",
+                    "GPUMD012",
                     "warning",
-                    "ABINIT input does not expose enough structure variables for static review",
+                    "no 'run' command found; simulation requires at least one run block",
                     str(path),
                     1,
-                    suggested_fix={
-                        "kind": "add_structure_block",
-                        "tokens": ["natom", "znucl", "typat", "xred"],
-                    },
-                    confidence=0.7,
+                    evidence=[MATMASTER_GUARDS["run_required"]],
+                    suggested_fix={"kind": "add_command", "command": "run"},
+                    confidence=0.85,
                 )
             )
+
+        ensemble_lines = [
+            line_no for line_no, line in meaningful
+            if line.lower().startswith("ensemble ")
+        ]
+        if ensemble_lines and run_lines and min(ensemble_lines) > min(run_lines):
+            diagnostics.append(
+                Diagnostic(
+                    "GPUMD013",
+                    "warning",
+                    "ensemble should be declared before the first run command",
+                    str(path),
+                    min(ensemble_lines),
+                    evidence=[MATMASTER_GUARDS["ensemble_before_run"]],
+                    suggested_fix={
+                        "kind": "move_command",
+                        "command": "ensemble",
+                        "position": "before_run",
+                    },
+                    confidence=0.80,
+                )
+            )
+
+    if DOMAIN_ID == "gpumd" and lower_name == "nep.in":
+        has_train = any(
+            line.lower().startswith("train_file ") for _, line in meaningful
+        )
+        if not has_train:
+            diagnostics.append(
+                Diagnostic(
+                    "GPUMD014",
+                    "information",
+                    "NEP training input should specify a train_file",
+                    str(path),
+                    1,
+                    evidence=[MATMASTER_GUARDS["nep_train_file_exists"]],
+                    suggested_fix={"kind": "add_command", "command": "train_file"},
+                    confidence=0.70,
+                )
+            )
+
     return diagnostics
 
 
@@ -271,34 +317,6 @@ def _analyze_python(path: Path, content: str) -> list[Diagnostic]:
                     confidence=0.68,
                 )
             )
-    if (
-        DOMAIN_ID == "pyscf"
-        and "kernel" in attrs
-        and "converged" not in attrs
-        and "converged" not in content
-    ):
-        diagnostics.append(
-            Diagnostic(
-                "PYSCF010",
-                "warning",
-                "PySCF scripts should check mf.converged after kernel/run calls",
-                str(path),
-                1,
-                suggested_fix={"kind": "check_convergence", "symbol": "mf.converged"},
-                confidence=0.8,
-            )
-        )
-    if DOMAIN_ID == "pyatb" and "HR.dat" not in content and "hr_file" not in content:
-        diagnostics.append(
-            Diagnostic(
-                "PYATB010",
-                "warning",
-                "PyATB workflow should reference HR.dat or hr_file",
-                str(path),
-                1,
-                confidence=0.75,
-            )
-        )
     return diagnostics
 
 
@@ -307,7 +325,7 @@ def _analyze_json_or_text(path: Path, content: str) -> list[Diagnostic]:
         return (
             _analyze_python(path, content)
             if path.suffix.lower() == ".py"
-            else _analyze_text(path, content)
+            else _analyze_text_internal(path, content)
         )
     try:
         payload = json.loads(content)

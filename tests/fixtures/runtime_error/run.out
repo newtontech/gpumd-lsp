@@ -1,0 +1,6 @@
+Step 0
+Step 100
+ERROR: cannot open file xyz.in
+Step 200
+FATAL: not enough memory
+Step 300
