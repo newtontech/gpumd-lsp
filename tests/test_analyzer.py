@@ -5,6 +5,11 @@ from pathlib import Path
 
 import pytest
 
+from gpumd_lsp.agent_api import (
+    agent_check,
+    agent_suggest,
+    get_code_actions,
+)
 from gpumd_lsp.analyzer import (
     FILE_NAMES,
     KNOWN_TOKENS,
@@ -16,26 +21,14 @@ from gpumd_lsp.analyzer import (
 from gpumd_lsp.completion import get_completions, get_nep_completions
 from gpumd_lsp.hover import get_hover
 from gpumd_lsp.lint import (
-    COMMAND_SIGNATURES,
     KNOWN_THERMOSTATS,
-    NEP_SIGNATURES,
-    lint_unknown_command,
-    lint_argument_count,
+    MATMASTER_GUARDS,
     lint_argument_type,
-    lint_missing_model,
-    lint_invalid_thermostat,
-    lint_missing_training_file,
-    lint_runtime_error,
-    lint_run_in_line,
     lint_nep_in_line,
+    lint_run_in_line,
+    lint_unknown_command,
     parse_runtime_log,
     parse_runtime_log_file,
-    MATMASTER_GUARDS,
-)
-from gpumd_lsp.agent_api import (
-    agent_check,
-    agent_suggest,
-    get_code_actions,
 )
 
 # ---------------------------------------------------------------------------
@@ -927,7 +920,6 @@ class TestRuleE063MissingModel:
     """Issue #17: GPUMD-E063 missing model file."""
 
     def test_missing_model_file(self, tmp_path: Path) -> None:
-        from pathlib import Path
         p = tmp_path / "run.in"
         p.write_text("potential nonexistent.txt\nrun 100\n")
         diags = lint_run_in_line(p, 1, "potential nonexistent.txt", base_dir=tmp_path)
@@ -935,7 +927,6 @@ class TestRuleE063MissingModel:
         assert "GPUMD-E063" in codes
 
     def test_model_file_present_ok(self, tmp_path: Path) -> None:
-        from pathlib import Path
         (tmp_path / "model.txt").write_text("dummy")
         p = tmp_path / "run.in"
         diags = lint_run_in_line(p, 1, "potential model.txt", base_dir=tmp_path)
@@ -989,14 +980,12 @@ class TestRuleE064MissingTrainingFile:
     """Issue #19: GPUMD-E064 missing training file."""
 
     def test_missing_train_file(self, tmp_path: Path) -> None:
-        from pathlib import Path
         p = tmp_path / "nep.in"
         diags = lint_nep_in_line(p, 1, "train_file nonexistent.xyz", base_dir=tmp_path)
         codes = [d.code for d in diags]
         assert "GPUMD-E064" in codes
 
     def test_train_file_present_ok(self, tmp_path: Path) -> None:
-        from pathlib import Path
         (tmp_path / "train.xyz").write_text("dummy")
         p = tmp_path / "nep.in"
         diags = lint_nep_in_line(p, 1, "train_file train.xyz", base_dir=tmp_path)
@@ -1010,7 +999,6 @@ class TestRuleE064MissingTrainingFile:
         assert not e064
 
     def test_missing_test_file_is_warning(self, tmp_path: Path) -> None:
-        from pathlib import Path
         p = tmp_path / "nep.in"
         diags = lint_nep_in_line(p, 1, "test_file nonexistent.xyz", base_dir=tmp_path)
         e064 = [d for d in diags if d.code == "GPUMD-E064"]
@@ -1168,14 +1156,24 @@ class TestCodeActions:
         from pathlib import Path
         content = "potential nep.txt\nrun abc\n"
         actions = get_code_actions(Path("run.in"), content, line=2)
-        type_actions = [a for a in actions if "type" in a.get("title", "").lower() or "E062" in str(a.get("diagnostics", []))]
+        type_actions = [
+            a
+            for a in actions
+            if "type" in a.get("title", "").lower()
+            or "E062" in str(a.get("diagnostics", []))
+        ]
         assert len(type_actions) > 0
 
     def test_code_actions_for_invalid_thermostat(self) -> None:
         from pathlib import Path
         content = "potential nep.txt\nensemble bad_thermo 300\nrun 100\n"
         actions = get_code_actions(Path("run.in"), content, line=2)
-        thermo_actions = [a for a in actions if "thermostat" in a.get("title", "").lower() or "W060" in str(a.get("diagnostics", []))]
+        thermo_actions = [
+            a
+            for a in actions
+            if "thermostat" in a.get("title", "").lower()
+            or "W060" in str(a.get("diagnostics", []))
+        ]
         assert len(thermo_actions) > 0
 
     def test_code_actions_clean_line_empty(self) -> None:

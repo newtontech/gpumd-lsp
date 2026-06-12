@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from lsprotocol.types import (
@@ -14,7 +13,6 @@ from lsprotocol.types import (
     TEXT_DOCUMENT_FORMATTING,
     TEXT_DOCUMENT_HOVER,
     CodeAction,
-    CodeActionContext,
     CodeActionKind,
     CodeActionParams,
     CompletionItem,
@@ -190,7 +188,6 @@ def code_actions(
     for act in raw_actions:
         title = act.get("title", "Fix")
         kind = act.get("kind", "quickfix")
-        diag_codes = act.get("diagnostics", [])
         edit_info = act.get("edit")
 
         code_action = CodeAction(

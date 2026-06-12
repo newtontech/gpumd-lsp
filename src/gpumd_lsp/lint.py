@@ -71,7 +71,16 @@ COMMAND_SIGNATURES: dict[str, tuple[int, int, list[tuple[Any, str]]]] = {
     "compute_hac": (3, 3, [(_is_int, "sample"), (_is_int, "output_interval"), (_is_int, "Nc")]),
     "compute_hnemd": (1, 1, [(_is_float, "Fe")]),
     "compute_msd": (2, 2, [(_is_int, "sample"), (_is_int, "interval")]),
-    "compute_shc": (3, 4, [(_is_int, "sample"), (_is_int, "output_interval"), (_is_int, "Nc"), (_is_int, "sample_interval")]),
+    "compute_shc": (
+        3,
+        4,
+        [
+            (_is_int, "sample"),
+            (_is_int, "output_interval"),
+            (_is_int, "Nc"),
+            (_is_int, "sample_interval"),
+        ],
+    ),
     "compute_dos": (2, 2, [(_is_int, "sample"), (_is_int, "Nc")]),
     "compute_phonon": (0, 0, []),
     "compute_sdc": (2, 2, [(_is_int, "sample"), (_is_int, "interval")]),

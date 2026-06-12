@@ -8,19 +8,17 @@ Provides structured JSON responses for:
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
-from .analyzer import analyze_text, format_text
+from .analyzer import analyze_text
 from .diagnostics import Diagnostic
 from .lint import (
     COMMAND_SIGNATURES,
     KNOWN_THERMOSTATS,
     NEP_SIGNATURES,
-    lint_run_in_line,
     lint_nep_in_line,
-    parse_runtime_log,
+    lint_run_in_line,
 )
 
 SOFTWARE = "gpumd"

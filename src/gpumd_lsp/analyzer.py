@@ -10,9 +10,8 @@ from .lint import (
     COMMAND_SIGNATURES,
     MATMASTER_GUARDS,
     NEP_SIGNATURES,
-    KNOWN_THERMOSTATS,
-    lint_run_in_line,
     lint_nep_in_line,
+    lint_run_in_line,
     parse_runtime_log_file,
 )
 
