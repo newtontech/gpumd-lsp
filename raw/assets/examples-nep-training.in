@@ -1,0 +1,18 @@
+# NEP Training Configuration Example
+# Reference: https://gpumd.org/nep.html
+# Train a NEP potential for Si system
+
+type 1 Si
+version 4
+cutoff 5 4
+n_max 12 8
+l_max 4 4
+basis_size 30
+lambda_e 0.1
+lambda_f 1.0
+lambda_v 0.1
+batch_size 100
+population_size 50
+generation 100000
+train_file train.xyz
+test_file test.xyz
