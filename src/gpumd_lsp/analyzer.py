@@ -10,9 +10,8 @@ from .lint import (
     COMMAND_SIGNATURES,
     MATMASTER_GUARDS,
     NEP_SIGNATURES,
-    KNOWN_THERMOSTATS,
-    lint_run_in_line,
     lint_nep_in_line,
+    lint_run_in_line,
     parse_runtime_log_file,
 )
 
@@ -114,7 +113,9 @@ def analyze_text(path: Path, content: str) -> list[Diagnostic]:
 
 
 def _analyze_text_internal(
-    path: Path, content: str, base_dir: Path | None = None,
+    path: Path,
+    content: str,
+    base_dir: Path | None = None,
 ) -> list[Diagnostic]:
     """Core text analysis. base_dir controls file-existence checks."""
     diagnostics: list[Diagnostic] = []
@@ -169,8 +170,7 @@ def _analyze_text_internal(
             if d.code == "GPUMD-E060":
                 # Skip if we already have GPUMD001 for same line
                 existing = [
-                    ex for ex in diagnostics
-                    if ex.code == "GPUMD001" and ex.line == line_no
+                    ex for ex in diagnostics if ex.code == "GPUMD001" and ex.line == line_no
                 ]
                 if existing:
                     continue
@@ -237,8 +237,7 @@ def _domain_text_checks(
             )
 
         ensemble_lines = [
-            line_no for line_no, line in meaningful
-            if line.lower().startswith("ensemble ")
+            line_no for line_no, line in meaningful if line.lower().startswith("ensemble ")
         ]
         if ensemble_lines and run_lines and min(ensemble_lines) > min(run_lines):
             diagnostics.append(
@@ -259,9 +258,7 @@ def _domain_text_checks(
             )
 
     if DOMAIN_ID == "gpumd" and lower_name == "nep.in":
-        has_train = any(
-            line.lower().startswith("train_file ") for _, line in meaningful
-        )
+        has_train = any(line.lower().startswith("train_file ") for _, line in meaningful)
         if not has_train:
             diagnostics.append(
                 Diagnostic(

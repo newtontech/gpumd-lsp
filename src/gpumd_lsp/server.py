@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from lsprotocol.types import (
@@ -14,7 +13,6 @@ from lsprotocol.types import (
     TEXT_DOCUMENT_FORMATTING,
     TEXT_DOCUMENT_HOVER,
     CodeAction,
-    CodeActionContext,
     CodeActionKind,
     CodeActionParams,
     CompletionItem,
@@ -163,7 +161,8 @@ def formatting(ls: LanguageServer, params: DocumentFormattingParams) -> list[Tex
 
 @SERVER.feature(TEXT_DOCUMENT_CODE_ACTION)
 def code_actions(
-    ls: LanguageServer, params: CodeActionParams,
+    ls: LanguageServer,
+    params: CodeActionParams,
 ) -> list[CodeAction] | None:
     """Issue #21: Provide code actions (quick fixes) for diagnostics."""
     uri = params.text_document.uri
@@ -190,7 +189,6 @@ def code_actions(
     for act in raw_actions:
         title = act.get("title", "Fix")
         kind = act.get("kind", "quickfix")
-        diag_codes = act.get("diagnostics", [])
         edit_info = act.get("edit")
 
         code_action = CodeAction(
