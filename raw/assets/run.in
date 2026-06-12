@@ -1,0 +1,10 @@
+# GPUMD run.in - NVE thermal conductivity simulation
+potential nep.txt
+velocity 300 12345
+time_step 1
+neighbor 0.5 10
+compute_hac 10 100 2000
+ensemble nve
+dump_thermo 100
+dump_position 1000 1
+run 200000
