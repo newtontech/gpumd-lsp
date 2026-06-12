@@ -48,6 +48,9 @@ This is a Karpathy-style LLM Wiki for the gpumd-lsp project, containing domain k
 ### 示例文件
 - [run.in示例](raw/assets/run.in) - 有效的run.in文件
 - [nep.in示例](raw/assets/nep.in) - 有效的nep.in文件
+- [upstream-sources.md](raw/assets/upstream-sources.md) - 官方GPUMD文档链接清单
+- [examples-thermal-conductivity.in](raw/assets/examples-thermal-conductivity.in) - 热导率计算示例
+- [examples-nep-training.in](raw/assets/examples-nep-training.in) - NEP训练配置示例
 
 ## 更新日志 / Change Log
 

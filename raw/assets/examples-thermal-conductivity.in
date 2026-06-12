@@ -1,0 +1,18 @@
+# GPUMD Thermal Conductivity Example - Green-Kubo HAC Method
+# Reference: https://gpumd.org/examples/thermal_conductivity.html
+# Calculates thermal conductivity of crystalline silicon using Green-Kubo method
+
+potential nep.txt
+velocity 300 12345
+time_step 1
+
+# NVT equilibration (Berendsen thermostat)
+ensemble nvt_ber 300 300 0.1
+dump_thermo 100
+run 20000
+
+# Switch to NVE for production
+ensemble nve
+compute_hac 10 100 2000
+dump_thermo 10
+run 200000

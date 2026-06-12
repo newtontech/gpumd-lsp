@@ -225,5 +225,8 @@ gpumd-lsp uses GPUMD-prefixed diagnostic codes to classify issues found in GPUMD
 
 ## 参考资料 / References
 
-- DIAGNOSTIC_ENGINE_V1.md: 完整诊断合约
-- lint.py: 诊断规则实现
+- DIAGNOSTIC_ENGINE_V1.md: [raw/assets/DIAGNOSTIC_ENGINE_V1.md](raw/assets/DIAGNOSTIC_ENGINE_V1.md)
+- lint.py: `src/gpumd_lsp/lint.py`
+- 参见: [diagnostic engine concept](wiki/concepts/diagnostic-engine-v1.md)
+- 参见: [error handling](wiki/concepts/error-handling.md)
+- 参见: [LSP architecture](wiki/concepts/lsp-architecture.md)

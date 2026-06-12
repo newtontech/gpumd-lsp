@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+# Hover documentation for GPUMD/NEP keywords.
+#
+# Source provenance: _HOVER_DOCS entries reference the official GPUMD
+# documentation at https://gpumd.org/ . The wiki manifest at
+# raw/assets/upstream-sources.md maps each command to its canonical URL.
+
 _HOVER_DOCS: dict[str, str] = {
     "potential": (
         "**potential** <filename>\n\n"

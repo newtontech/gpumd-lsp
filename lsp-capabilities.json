@@ -92,6 +92,26 @@
       "kind": "official_docs",
       "label": "GPUMD documentation",
       "url": "https://gpumd.org/"
+    },
+    {
+      "kind": "official_docs",
+      "label": "GPUMD run.in reference",
+      "url": "https://gpumd.org/run_in.html"
+    },
+    {
+      "kind": "official_docs",
+      "label": "NEP potential documentation",
+      "url": "https://gpumd.org/nep.html"
+    },
+    {
+      "kind": "official_docs",
+      "label": "GPUMD GitHub",
+      "url": "https://github.com/brucefan1983/GPUMD"
+    },
+    {
+      "kind": "wiki_manifest",
+      "label": "GPUMD Upstream Sources Manifest",
+      "path": "raw/assets/upstream-sources.md"
     }
   ]
 }

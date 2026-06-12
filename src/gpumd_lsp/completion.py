@@ -2,6 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
+# Completion items for GPUMD run.in and nep.in keywords.
+#
+# Source provenance: Items reference official GPUMD documentation at
+# https://gpumd.org/ . The wiki manifest at raw/assets/upstream-sources.md
+# maps each command to its canonical documentation URL.
+
 _RUN_IN_KEYWORDS: list[dict[str, str]] = [
     {
         "label": "potential",

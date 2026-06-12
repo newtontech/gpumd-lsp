@@ -38,9 +38,13 @@ GPUMD uses two primary input files:
 
 ## 参考资料 / References
 
-- GitHub: https://github.com/brucefan1983/GPUMD
-- NEP potential: Neural Evolution Potential for MD simulations
-- MatMaster integration: Used in MatMaster workflows
+- Official docs: <https://gpumd.org/>
+- GitHub: <https://github.com/brucefan1983/GPUMD>
+- NEP potential: <https://gpumd.org/nep.html>
+- 参见: [upstream-sources.md](raw/assets/upstream-sources.md) for complete command→URL mapping
+- 参见: [run.in format](wiki/entities/run-in-format.md) for input syntax
+- 参见: [NEP potential](wiki/entities/nep-potential.md) for NEP training
+- 参见: [diagnostic codes](wiki/entities/diagnostic-codes.md) for LSP error codes
 
 ## LSP支持 / LSP Support
 

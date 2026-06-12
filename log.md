@@ -1,5 +1,28 @@
 # GPUMD LSP Wiki 更新日志 / Change Log
 
+## 2026-06-13 - Upstream Docs Closeout (#28)
+
+**Scope**: Fill upstream documentation coverage gaps, add official examples, cross-reference wiki pages, create wiki lint.
+
+**Content Added**:
+- `raw/assets/upstream-sources.md` — Official GPUMD docs link manifest (gpumd.org)
+- `raw/assets/examples-thermal-conductivity.in` — Green-Kubo thermal conductivity example
+- `raw/assets/examples-nep-training.in` — NEP training configuration example
+- `scripts/wiki-lint.sh` — Lightweight wiki integrity checker
+
+**Pages Updated**:
+- `wiki/entities/gpumd-software.md` — Added official reference links and cross-references
+- `wiki/entities/run-in-format.md` — Added official docs links and example references
+- `wiki/entities/diagnostic-codes.md` — Added cross-references to related pages
+- `wiki/concepts/diagnostic-engine-v1.md` — Expanded with code table and cross-references
+- `wiki/synthesis/openqc-agent-context.md` — Expanded with CLI surface and capabilities
+- `index.md` — Added raw asset listings for new files
+- `log.md` — This entry
+
+**LSP-facing Update**:
+- Updated `lsp-capabilities.json` sourceProvenance with additional upstream URLs
+- Hover docs in `completion.py`/`hover.py` now traceable to wiki via upstream-sources.md manifest
+
 ## 2026-06-12 - 初始创建 / Initial Creation
 
 ### 创建的文件 / Files Created (21个)

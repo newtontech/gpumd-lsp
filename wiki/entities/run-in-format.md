@@ -79,5 +79,10 @@ ensemble should be before run (warning)
 
 ## 参考资料 / References
 
-- GPUMD user manual: run.in syntax
+- GPUMD user manual: <https://gpumd.org/run_in.html>
+- 参见: [upstream-sources.md](raw/assets/upstream-sources.md) for command→URL mapping
+- 参见: [command reference](wiki/synthesis/command-reference.md)
+- 参见: [input format guide](wiki/synthesis/input-format-guide.md)
+- 参见: [diagnostic codes](wiki/entities/diagnostic-codes.md)
+- Example: [thermal conductivity input](raw/assets/examples-thermal-conductivity.in)
 - MatMaster execution guards
