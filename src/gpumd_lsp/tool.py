@@ -57,6 +57,7 @@ def _operation_payload(
         character=character,
     )
 
+
 def _do_check(args: argparse.Namespace) -> int:
     payload = with_capabilities(check_path(args.path), "check")
     print(json.dumps(payload, indent=2, sort_keys=True))
@@ -96,10 +97,13 @@ def _do_parse_log(args: argparse.Namespace) -> int:
     from .lint import parse_runtime_log_file
 
     diagnostics = parse_runtime_log_file(args.path)
-    print(json.dumps(
-        [d.to_json() for d in diagnostics],
-        indent=2, sort_keys=True,
-    ))
+    print(
+        json.dumps(
+            [d.to_json() for d in diagnostics],
+            indent=2,
+            sort_keys=True,
+        )
+    )
     return 1 if diagnostics else 0
 
 
@@ -122,17 +126,17 @@ def main(argv: list[str] | None = None) -> int:
         sub.add_argument("--format", choices=["json"], default="json")
         if operation in ("check", "context", "complete", "hover", "symbols", "fix"):
             sub.add_argument(
-            "--line",
-            type=int,
-            default=0,
-            help="0-based line for position-aware operations.",
-        )
+                "--line",
+                type=int,
+                default=0,
+                help="0-based line for position-aware operations.",
+            )
             sub.add_argument(
-            "--character",
-            type=int,
-            default=0,
-            help="0-based character for position-aware operations.",
-        )
+                "--character",
+                type=int,
+                default=0,
+                help="0-based character for position-aware operations.",
+            )
         if operation == "check":
             sub.add_argument("--fail-on-blocking", action="store_true")
         if operation in ("suggest", "code_actions"):

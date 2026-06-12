@@ -795,6 +795,7 @@ class TestRuleE060UnknownCommand:
 
     def test_unknown_command_in_run_in(self) -> None:
         from pathlib import Path
+
         diags = lint_unknown_command(Path("run.in"), 3, "badcmd")
         assert len(diags) == 1
         assert diags[0].code == "GPUMD-E060"
@@ -803,18 +804,21 @@ class TestRuleE060UnknownCommand:
 
     def test_unknown_command_via_lint_run_in_line(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "foobar 42")
         codes = [d.code for d in diags]
         assert "GPUMD-E060" in codes
 
     def test_unknown_command_via_lint_nep_in_line(self) -> None:
         from pathlib import Path
+
         diags = lint_nep_in_line(Path("nep.in"), 1, "not_a_nep_kw value")
         codes = [d.code for d in diags]
         assert "GPUMD-E060" in codes
 
     def test_known_command_not_flagged(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "run 1000")
         e060 = [d for d in diags if d.code == "GPUMD-E060"]
         assert not e060
@@ -825,24 +829,28 @@ class TestRuleE061InvalidArgumentCount:
 
     def test_too_few_args(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "run")
         codes = [d.code for d in diags]
         assert "GPUMD-E061" in codes
 
     def test_too_many_args(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "time_step 1 2")
         codes = [d.code for d in diags]
         assert "GPUMD-E061" in codes
 
     def test_correct_arg_count_ok(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "time_step 1")
         e061 = [d for d in diags if d.code == "GPUMD-E061"]
         assert not e061
 
     def test_variable_args_ok(self) -> None:
         from pathlib import Path
+
         # group has min 2, max unlimited
         diags = lint_run_in_line(Path("run.in"), 1, "group 0 1 2 3")
         e061 = [d for d in diags if d.code == "GPUMD-E061"]
@@ -850,6 +858,7 @@ class TestRuleE061InvalidArgumentCount:
 
     def test_ensemble_wrong_thermostat_args(self) -> None:
         from pathlib import Path
+
         # nve expects 0 sub-args, but we provide 2
         diags = lint_run_in_line(Path("run.in"), 1, "ensemble nve 300 300")
         codes = [d.code for d in diags]
@@ -857,12 +866,14 @@ class TestRuleE061InvalidArgumentCount:
 
     def test_ensemble_correct_thermostat_args(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "ensemble nvt_ber 300 300 100")
         e061 = [d for d in diags if d.code == "GPUMD-E061"]
         assert not e061
 
     def test_nep_wrong_arg_count(self) -> None:
         from pathlib import Path
+
         diags = lint_nep_in_line(Path("nep.in"), 1, "cutoff 5")
         codes = [d.code for d in diags]
         assert "GPUMD-E061" in codes
@@ -873,36 +884,42 @@ class TestRuleE062InvalidArgumentType:
 
     def test_non_numeric_time_step(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "time_step abc")
         codes = [d.code for d in diags]
         assert "GPUMD-E062" in codes
 
     def test_non_numeric_run_steps(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "run thousand")
         codes = [d.code for d in diags]
         assert "GPUMD-E062" in codes
 
     def test_valid_numeric_ok(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "run 1000")
         e062 = [d for d in diags if d.code == "GPUMD-E062"]
         assert not e062
 
     def test_float_arg_ok_for_time_step(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "time_step 0.5")
         e062 = [d for d in diags if d.code == "GPUMD-E062"]
         assert not e062
 
     def test_nep_non_numeric_cutoff(self) -> None:
         from pathlib import Path
+
         diags = lint_nep_in_line(Path("nep.in"), 1, "cutoff abc def")
         codes = [d.code for d in diags]
         assert "GPUMD-E062" in codes
 
     def test_nep_type_allows_string_labels(self) -> None:
         from pathlib import Path
+
         # type 2 C H - N is int, labels are paths (string-like)
         diags = lint_nep_in_line(Path("nep.in"), 1, "type 2 C H")
         e062 = [d for d in diags if d.code == "GPUMD-E062"]
@@ -910,6 +927,7 @@ class TestRuleE062InvalidArgumentType:
 
     def test_type_check_message_includes_expected(self) -> None:
         from pathlib import Path
+
         diags = lint_argument_type(Path("run.in"), 1, "run", 0, "abc", "N_steps")
         assert len(diags) == 1
         assert "N_steps" in diags[0].message
@@ -935,6 +953,7 @@ class TestRuleE063MissingModel:
 
     def test_no_base_dir_skips_check(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "potential missing.txt")
         e063 = [d for d in diags if d.code == "GPUMD-E063"]
         assert not e063
@@ -951,18 +970,21 @@ class TestRuleW060InvalidThermostat:
 
     def test_invalid_thermostat(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "ensemble nvt_invalid 300 300 100")
         codes = [d.code for d in diags]
         assert "GPUMD-W060" in codes
 
     def test_valid_thermostat_ok(self) -> None:
         from pathlib import Path
+
         diags = lint_run_in_line(Path("run.in"), 1, "ensemble nve")
         w060 = [d for d in diags if d.code == "GPUMD-W060"]
         assert not w060
 
     def test_all_known_thermostats_ok(self) -> None:
         from pathlib import Path
+
         for t in KNOWN_THERMOSTATS:
             if t == "nve":
                 diags = lint_run_in_line(Path("run.in"), 1, f"ensemble {t}")
@@ -994,6 +1016,7 @@ class TestRuleE064MissingTrainingFile:
 
     def test_no_base_dir_skips_check(self) -> None:
         from pathlib import Path
+
         diags = lint_nep_in_line(Path("nep.in"), 1, "train_file missing.xyz")
         e064 = [d for d in diags if d.code == "GPUMD-E064"]
         assert not e064
@@ -1011,6 +1034,7 @@ class TestRuleE065RuntimeError:
 
     def test_error_line_in_log(self) -> None:
         from pathlib import Path
+
         log_content = "Step 100\nERROR: cannot open file\nStep 200\n"
         diags = parse_runtime_log(log_content, Path("run.out"))
         assert len(diags) == 1
@@ -1019,6 +1043,7 @@ class TestRuleE065RuntimeError:
 
     def test_fatal_in_log(self) -> None:
         from pathlib import Path
+
         log_content = "FATAL: out of memory\n"
         diags = parse_runtime_log(log_content, Path("run.out"))
         assert len(diags) == 1
@@ -1026,6 +1051,7 @@ class TestRuleE065RuntimeError:
 
     def test_segfault_in_log(self) -> None:
         from pathlib import Path
+
         log_content = "Step 1000\nsegmentation fault\n"
         diags = parse_runtime_log(log_content, Path("run.out"))
         assert len(diags) >= 1
@@ -1034,6 +1060,7 @@ class TestRuleE065RuntimeError:
 
     def test_clean_log_no_errors(self) -> None:
         from pathlib import Path
+
         log_content = "Step 100\nStep 200\nStep 300\n"
         diags = parse_runtime_log(log_content, Path("run.out"))
         assert not diags
@@ -1115,6 +1142,7 @@ class TestMatMasterGuards:
 class TestAgentAPI:
     def test_agent_check_valid(self) -> None:
         from pathlib import Path
+
         payload = agent_check(Path("run.in"), "potential nep.txt\ntime_step 1\nrun 100\n")
         assert payload["ok"] is True
         assert "diagnostics" in payload
@@ -1122,17 +1150,20 @@ class TestAgentAPI:
 
     def test_agent_check_invalid(self) -> None:
         from pathlib import Path
+
         payload = agent_check(Path("run.in"), "unknown_cmd 42\n")
         assert payload["ok"] is False
         assert payload["summary"]["errors"] > 0
 
     def test_agent_suggest_commands(self) -> None:
         from pathlib import Path
+
         payload = agent_suggest(Path("run.in"), "potential nep.txt\nrun 100\n", line=3)
         assert "suggestions" in payload
 
     def test_agent_suggest_empty_line(self) -> None:
         from pathlib import Path
+
         payload = agent_suggest(Path("run.in"), "potential nep.txt\n\nrun 100\n", line=2)
         suggestions = payload.get("suggestions", [])
         # Empty line should suggest all commands
@@ -1147,6 +1178,7 @@ class TestAgentAPI:
 class TestCodeActions:
     def test_code_actions_for_unknown_keyword(self) -> None:
         from pathlib import Path
+
         content = "potential nep.txt\nrunabcd 100\n"
         actions = get_code_actions(Path("run.in"), content, line=2)
         assert len(actions) > 0
@@ -1154,30 +1186,31 @@ class TestCodeActions:
 
     def test_code_actions_for_invalid_type(self) -> None:
         from pathlib import Path
+
         content = "potential nep.txt\nrun abc\n"
         actions = get_code_actions(Path("run.in"), content, line=2)
         type_actions = [
             a
             for a in actions
-            if "type" in a.get("title", "").lower()
-            or "E062" in str(a.get("diagnostics", []))
+            if "type" in a.get("title", "").lower() or "E062" in str(a.get("diagnostics", []))
         ]
         assert len(type_actions) > 0
 
     def test_code_actions_for_invalid_thermostat(self) -> None:
         from pathlib import Path
+
         content = "potential nep.txt\nensemble bad_thermo 300\nrun 100\n"
         actions = get_code_actions(Path("run.in"), content, line=2)
         thermo_actions = [
             a
             for a in actions
-            if "thermostat" in a.get("title", "").lower()
-            or "W060" in str(a.get("diagnostics", []))
+            if "thermostat" in a.get("title", "").lower() or "W060" in str(a.get("diagnostics", []))
         ]
         assert len(thermo_actions) > 0
 
     def test_code_actions_clean_line_empty(self) -> None:
         from pathlib import Path
+
         content = "potential nep.txt\nrun 100\n"
         actions = get_code_actions(Path("run.in"), content, line=2)
         # line 2 is "run 100" which has no diagnostics
@@ -1189,6 +1222,7 @@ class TestCodeActions:
 
     def test_code_actions_for_missing_model(self) -> None:
         from pathlib import Path
+
         # analyze_text doesn't do file existence checks, so use E063 fixture
         actions = get_code_actions(Path("run.in"), "potential nep.txt\nrun 100\n", line=1)
         # analyze_text won't fire E063 since no base_dir

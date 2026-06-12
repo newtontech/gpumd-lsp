@@ -161,7 +161,8 @@ def formatting(ls: LanguageServer, params: DocumentFormattingParams) -> list[Tex
 
 @SERVER.feature(TEXT_DOCUMENT_CODE_ACTION)
 def code_actions(
-    ls: LanguageServer, params: CodeActionParams,
+    ls: LanguageServer,
+    params: CodeActionParams,
 ) -> list[CodeAction] | None:
     """Issue #21: Provide code actions (quick fixes) for diagnostics."""
     uri = params.text_document.uri

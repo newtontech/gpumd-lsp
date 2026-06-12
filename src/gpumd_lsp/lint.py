@@ -119,10 +119,18 @@ NEP_SIGNATURES: dict[str, tuple[int, int, list[tuple[Any, str]]]] = {
     "prediction_csv": (0, 0, []),
 }
 
-KNOWN_THERMOSTATS = frozenset({
-    "nve", "nvt_ber", "nvt_berendsen", "nvt_nose_hoover",
-    "npt_ber", "npt_berendsen", "npt_mtk", "heat_bc",
-})
+KNOWN_THERMOSTATS = frozenset(
+    {
+        "nve",
+        "nvt_ber",
+        "nvt_berendsen",
+        "nvt_nose_hoover",
+        "npt_ber",
+        "npt_berendsen",
+        "npt_mtk",
+        "heat_bc",
+    }
+)
 
 THERMOSTAT_ARGS: dict[str, tuple[int, int]] = {
     "nve": (0, 0),
@@ -167,7 +175,10 @@ def lint_unknown_command(path: Path, line_no: int, token: str) -> list[Diagnosti
 
 
 def lint_argument_count(
-    path: Path, line_no: int, command: str, actual_args: int,
+    path: Path,
+    line_no: int,
+    command: str,
+    actual_args: int,
     sig: tuple[int, int, list[tuple[Any, str]]],
 ) -> list[Diagnostic]:
     """GPUMD-E061: invalid argument count."""
@@ -197,8 +208,12 @@ def lint_argument_count(
 
 
 def lint_argument_type(
-    path: Path, line_no: int, command: str, arg_index: int,
-    arg_value: str, expected_type: str,
+    path: Path,
+    line_no: int,
+    command: str,
+    arg_index: int,
+    arg_value: str,
+    expected_type: str,
 ) -> list[Diagnostic]:
     """GPUMD-E062: invalid argument type."""
     return [
@@ -256,7 +271,10 @@ def lint_invalid_thermostat(path: Path, line_no: int, thermostat: str) -> list[D
 
 
 def lint_ensemble_arg_count(
-    path: Path, line_no: int, thermostat: str, actual_count: int,
+    path: Path,
+    line_no: int,
+    thermostat: str,
+    actual_count: int,
 ) -> list[Diagnostic]:
     """GPUMD-E061 for ensemble sub-arguments."""
     if thermostat not in THERMOSTAT_ARGS:
@@ -270,8 +288,7 @@ def lint_ensemble_arg_count(
             code="GPUMD-E061",
             severity="error",
             message=(
-                f"thermostat '{thermostat}' expects {expected_str} parameter(s), "
-                f"got {actual_count}"
+                f"thermostat '{thermostat}' expects {expected_str} parameter(s), got {actual_count}"
             ),
             file=str(path),
             line=line_no,
@@ -321,7 +338,10 @@ def lint_runtime_error(path: Path, line_no: int, log_line: str) -> list[Diagnost
 
 
 def lint_run_in_line(
-    path: Path, line_no: int, line: str, base_dir: Path | None = None,
+    path: Path,
+    line_no: int,
+    line: str,
+    base_dir: Path | None = None,
 ) -> list[Diagnostic]:
     """Run all lint rules on a single run.in line."""
     tokens = line.strip().split()
@@ -361,7 +381,10 @@ def lint_run_in_line(
 
 
 def lint_nep_in_line(
-    path: Path, line_no: int, line: str, base_dir: Path | None = None,
+    path: Path,
+    line_no: int,
+    line: str,
+    base_dir: Path | None = None,
 ) -> list[Diagnostic]:
     """Run all lint rules on a single nep.in line."""
     tokens = line.strip().split()
